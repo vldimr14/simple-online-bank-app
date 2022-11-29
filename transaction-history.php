@@ -59,6 +59,7 @@ if (isset($_SESSION["loggedin"])) {
                                 <th scope="col">Date</th>
                                 <th scope="col">Description</th>
                                 <th scope="col">Amount</th>
+                                <th scope="col">Currency</th>
                                 <th scope="col">Type</th>
                                 <th scope="col">Sender Account No.</th>
                                 <th scope="col">Recipient Account No.</th>
@@ -103,6 +104,7 @@ if (isset($_SESSION["loggedin"])) {
 
                                         ?>
 
+                                        <td><?php echo $transactionHistory[$i]->getCurrency(); ?></td>
                                         <td><?php echo $transactionHistory[$i]->getType(); ?></td>
                                         <td><?php echo $transactionHistory[$i]->getSenderAccountNo(); ?></td>
                                         <td><?php echo $transactionHistory[$i]->getRecipientAccountNo(); ?></td>

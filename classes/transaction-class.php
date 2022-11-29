@@ -14,10 +14,11 @@ class Transaction extends DbHandler
     private $type;
     private $senderCardNo = "";
     private $date; // in use only when I request the data from the database.
+    private $currency;
 
     private $senderAccount; // Account object.
 
-    public function __construct($id, $description, $amount, $senderAccountNo, $recipientAccountNo, $senderId)
+    public function __construct($id, $description, $amount, $senderAccountNo, $recipientAccountNo, $senderId, $currency)
     {
         $this->id = $id;
         $this->description = $description;
@@ -27,6 +28,7 @@ class Transaction extends DbHandler
         $this->senderId = $senderId;
         $this->type = "transfer";   // for now i didn't implement card transactions. 
         $this->senderCardNo = 0;    // Only transfers for now.
+        $this->currency = $currency;
 
         $this->senderAccount = new Account($senderId, $senderAccountNo); // get necessary sender account info to process transfer.
     }
@@ -71,13 +73,22 @@ class Transaction extends DbHandler
         $this->date = $date;
     }
 
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
     // get transaction information from database.
     public static function getTransactionHistory($client)
     {
         $transactionHistory = [];
 
+        // Using left join to get accounts currency.
         foreach ($client->getAccounts() as $account) {
-            $sql = "SELECT * FROM transactions WHERE transactions_senderAccountId = :accountId OR transactions_recipientAccountId = :accountId ORDER BY transactions_date DESC;";
+            $sql = "SELECT transactions_id, transactions_date, transactions_description, transactions_amount, accounts.accounts_currency, transactions_senderAccountId, transactions_recipientAccountId, transactions_senderId FROM transactions 
+                    INNER JOIN accounts ON transactions.transactions_senderId = accounts.clients_id 
+                    WHERE transactions_senderAccountId = :accountId OR transactions_recipientAccountId = :accountId 
+                    ORDER BY transactions_date DESC;";
             $pdo = $client->connect();
 
             if ($stmt = $pdo->prepare($sql)) {
@@ -99,7 +110,8 @@ class Transaction extends DbHandler
                                 $transactionInfo[$i]["transactions_amount"],
                                 $transactionInfo[$i]["transactions_senderAccountId"],
                                 $transactionInfo[$i]["transactions_recipientAccountId"],
-                                $transactionInfo[$i]["transactions_senderId"]
+                                $transactionInfo[$i]["transactions_senderId"],
+                                $transactionInfo[$i]["accounts_currency"]
                             );
 
                             $transaction->setDate($transactionInfo[$i]["transactions_date"]);
@@ -217,7 +229,7 @@ class Transaction extends DbHandler
         if (!($this->senderAccount->getBalance() < intval($this->amount))) {
 
             // check if recipient account exists and it's not the sender account.
-            if ($this->senderAccount->checkAccount($this->recipientAccountNo) && $this->senderAccountNo !== $this->recipientAccountNo) {
+            if ($this->senderAccount->checkAccount($recipientAccountNo) && $this->senderAccountNo !== $this->recipientAccountNo) {
                 // check if recipient account has the same currency as sender account.
                 if ($this->senderAccount->getCurrency() == $this->senderAccount->checkAccountCurrency($this->recipientAccountNo)) {
                     if ($stmt = $pdo->prepare($sql)) {
