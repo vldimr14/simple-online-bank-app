@@ -18,7 +18,7 @@ class Transaction extends DbHandler
 
     private $senderAccount; // Account object.
 
-    public function __construct($id, $description, $amount, $senderAccountNo, $recipientAccountNo, $senderId, $currency)
+    public function __construct($id, $description, $amount, $senderAccountNo, $recipientAccountNo, $senderId)
     {
         $this->id = $id;
         $this->description = $description;
@@ -28,7 +28,7 @@ class Transaction extends DbHandler
         $this->senderId = $senderId;
         $this->type = "transfer";   // for now i didn't implement card transactions. 
         $this->senderCardNo = 0;    // Only transfers for now.
-        $this->currency = $currency;
+        $this->currency = null;
 
         $this->senderAccount = new Account($senderId, $senderAccountNo); // get necessary sender account info to process transfer.
     }
@@ -78,6 +78,11 @@ class Transaction extends DbHandler
         return $this->currency;
     }
 
+    public function setCurrency($currency)
+    {
+        $this->currency = $currency;
+    }
+
     // get transaction information from database.
     public static function getTransactionHistory($client)
     {
@@ -110,11 +115,11 @@ class Transaction extends DbHandler
                                 $transactionInfo[$i]["transactions_amount"],
                                 $transactionInfo[$i]["transactions_senderAccountId"],
                                 $transactionInfo[$i]["transactions_recipientAccountId"],
-                                $transactionInfo[$i]["transactions_senderId"],
-                                $transactionInfo[$i]["accounts_currency"]
+                                $transactionInfo[$i]["transactions_senderId"]
                             );
 
                             $transaction->setDate($transactionInfo[$i]["transactions_date"]);
+                            $transaction->setCurrency($transactionInfo[$i]["accounts_currency"]);
 
                             array_push($transactionHistory, $transaction);
                         }
@@ -229,7 +234,7 @@ class Transaction extends DbHandler
         if (!($this->senderAccount->getBalance() < intval($this->amount))) {
 
             // check if recipient account exists and it's not the sender account.
-            if ($this->senderAccount->checkAccount($recipientAccountNo) && $this->senderAccountNo !== $this->recipientAccountNo) {
+            if ($this->senderAccount->checkAccount($this->recipientAccountNo) && $this->senderAccountNo !== $this->recipientAccountNo) {
                 // check if recipient account has the same currency as sender account.
                 if ($this->senderAccount->getCurrency() == $this->senderAccount->checkAccountCurrency($this->recipientAccountNo)) {
                     if ($stmt = $pdo->prepare($sql)) {
