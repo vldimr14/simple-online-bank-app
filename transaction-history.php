@@ -31,12 +31,6 @@ if (isset($_SESSION["loggedin"])) {
         <?php
         $accounts = $client->getAccounts();
 
-        // Test the accounts
-        // echo $accounts[0]->getAccountNo() . " ";
-        // echo " balance: " . $accounts[0]->getBalance() . " ";
-        // echo " client id: " . $accounts[0]->getClientId() . " ";
-        // echo " currency: " . $accounts[0]->getCurrency() . " ";
-
         // check if accounts exists.
         if ($accounts[0]->getAccountNo() !== NULL) {
         ?>
@@ -46,10 +40,8 @@ if (isset($_SESSION["loggedin"])) {
             <div class="transaction-history">
                 <h3 class="text-center"><?php echo htmlspecialchars($client->getFirstName()) . " " . htmlspecialchars($client->getLastName()) . "'s " ?>Transaction history</h3>
 
-                <form action="main_includes/transaction-search-inc.php" method="post" class="col-md-4 d-flex flex-row">
-                    <input type="text" name="searchQuery" class="form-control" placeholder="Search">
-                    <input type="submit" name="submit" value=" Search" class="btn btn-outline-dark">
-                </form>
+                <!-- search form -->
+                <?php include "search-form.php" ?>
 
                 <?php
 

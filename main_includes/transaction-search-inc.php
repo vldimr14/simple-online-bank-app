@@ -18,11 +18,6 @@ if (isset($_POST["submit"])) {
     require_once "../classes/account-class.php";
     require_once "../classes/transaction-class.php";
 
-    // $searchResult = Transaction::findTransaction($client, $searchQuery);
-
-    // Create new superglobal which will store search result.
-    // $_SESSION["searchQuery"] = $searchQuery;
-
     // redirect to transaction-history page
     header("Location: ../search-result.php?search=$searchQuery");
 } else {
