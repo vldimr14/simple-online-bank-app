@@ -77,43 +77,59 @@ if (isset($_SESSION["loggedin"])) {
 
                                 $clientAccounts = $client->getAccounts();
 
-                                foreach ($clientAccounts as $account) {
-                                    if ($transactionHistory[$i]->getSenderAccountNo() != $account->getAccountNo()) {
+                                if (isset($_GET["search"]) && $_GET["search"] !== "") {
+                                    $searchQuery = $_GET["search"];
+
+                                    // strpos() function checks if string contains another string inside.
+                                    if (
+                                        $transactionHistory[$i]->getId() == $searchQuery ||
+                                        strpos($transactionHistory[$i]->getDescription(), $searchQuery) ||
+                                        $transactionHistory[$i]->getAmount() == $searchQuery ||
+                                        $transactionHistory[$i]->getSenderAccountNo() == $searchQuery ||
+                                        $transactionHistory[$i]->getRecipientAccountNo() == $searchQuery ||
+                                        $transactionHistory[$i]->getType() == $searchQuery ||
+                                        $transactionHistory[$i]->getDate() == $searchQuery ||
+                                        $transactionHistory[$i]->getCurrency() == $searchQuery
+                                    ) {
+                                        foreach ($clientAccounts as $account) {
+                                            if ($transactionHistory[$i]->getSenderAccountNo() != $account->getAccountNo()) {
 
                                 ?>
-                                        <tr class="table-success">
-                                        <?php
-                                    } else {
-                                        ?>
-                                        <tr class="table-danger">
-                                        <?php
-                                    }
-                                        ?>
+                                                <tr class="table-success">
+                                                <?php
+                                            } else {
+                                                ?>
+                                                <tr class="table-danger">
+                                                <?php
+                                            }
+                                                ?>
 
-                                        <th scope="row"><?php echo $transactionHistory[$i]->getId(); ?></th>
-                                        <td><?php echo $transactionHistory[$i]->getDate(); ?></td>
-                                        <td><?php echo htmlspecialchars($transactionHistory[$i]->getDescription()); ?></td>
+                                                <th scope="row"><?php echo $transactionHistory[$i]->getId(); ?></th>
+                                                <td><?php echo $transactionHistory[$i]->getDate(); ?></td>
+                                                <td><?php echo htmlspecialchars($transactionHistory[$i]->getDescription()); ?></td>
 
-                                        <!-- change +/- sign depending on income or outcome -->
-                                        <?php
-                                        if ($transactionHistory[$i]->getSenderAccountNo() != $account->getAccountNo()) {
+                                                <!-- change +/- sign depending on income or outcome -->
+                                                <?php
+                                                if ($transactionHistory[$i]->getSenderAccountNo() != $account->getAccountNo()) {
 
-                                        ?>
-                                            <td>+<?php echo $transactionHistory[$i]->getAmount(); ?></td>
-                                        <?php
-                                        } else {
-                                        ?>
-                                            <td>-<?php echo $transactionHistory[$i]->getAmount(); ?></td>
-                                        <?php
-                                        }
+                                                ?>
+                                                    <td>+<?php echo $transactionHistory[$i]->getAmount(); ?></td>
+                                                <?php
+                                                } else {
+                                                ?>
+                                                    <td>-<?php echo $transactionHistory[$i]->getAmount(); ?></td>
+                                                <?php
+                                                }
 
-                                        ?>
+                                                ?>
 
-                                        <td><?php echo $transactionHistory[$i]->getCurrency(); ?></td>
-                                        <td><?php echo $transactionHistory[$i]->getType(); ?></td>
-                                        <td><?php echo $transactionHistory[$i]->getSenderAccountNo(); ?></td>
-                                        <td><?php echo $transactionHistory[$i]->getRecipientAccountNo(); ?></td>
-                                        </tr>
+                                                <td><?php echo $transactionHistory[$i]->getCurrency(); ?></td>
+                                                <td><?php echo $transactionHistory[$i]->getType(); ?></td>
+                                                <td><?php echo $transactionHistory[$i]->getSenderAccountNo(); ?></td>
+                                                <td><?php echo $transactionHistory[$i]->getRecipientAccountNo(); ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                        <?php } ?>
                                     <?php } ?>
                                 <?php } ?>
                             <?php } ?>
