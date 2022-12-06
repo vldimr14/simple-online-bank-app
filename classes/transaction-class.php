@@ -165,6 +165,7 @@ class Transaction extends DbHandler
         }
     }
 
+    // Check if transaction exists
     public function checkTransaction($transactionNo)
     {
         $sql = "SELECT transactions_id FROM transactions WHERE transactions_id = :transactionNo;";
@@ -289,6 +290,7 @@ class Transaction extends DbHandler
         }
     }
 
+    // Update sender account after transfer operation.
     private function updateSenderAccount()
     {
         $sql = "UPDATE accounts SET accounts_balance = accounts_balance - :amount WHERE accounts_id = :senderAccountNo";
@@ -313,6 +315,7 @@ class Transaction extends DbHandler
         }
     }
 
+    // Update recipient account after transfer operation.
     private function updateRecipientAccount()
     {
         $sql = "UPDATE accounts SET accounts_balance = accounts_balance + :amount WHERE accounts_id = :recipientAccountNo";
