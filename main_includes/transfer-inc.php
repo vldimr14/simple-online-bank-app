@@ -29,5 +29,5 @@ if (isset($_POST["submit"])) {
     // redirect to user's account page
     header("Location: ../account-page.php?error=none");
 } else {
-    header("Location: account-page.php");
+    header("Location: ../account-page.php");
 }

@@ -14,6 +14,7 @@ class Transaction extends DbHandler
     private $type;
     private $senderCardNo = "";
     private $date; // in use only when I request the data from the database.
+    private $currency;
 
     private $senderAccount; // Account object.
 
@@ -27,6 +28,7 @@ class Transaction extends DbHandler
         $this->senderId = $senderId;
         $this->type = "transfer";   // for now i didn't implement card transactions. 
         $this->senderCardNo = 0;    // Only transfers for now.
+        $this->currency = null;
 
         $this->senderAccount = new Account($senderId, $senderAccountNo); // get necessary sender account info to process transfer.
     }
@@ -71,13 +73,27 @@ class Transaction extends DbHandler
         $this->date = $date;
     }
 
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency($currency)
+    {
+        $this->currency = $currency;
+    }
+
     // get transaction information from database.
     public static function getTransactionHistory($client)
     {
         $transactionHistory = [];
 
+        // Using left join to get accounts currency.
         foreach ($client->getAccounts() as $account) {
-            $sql = "SELECT * FROM transactions WHERE transactions_senderAccountId = :accountId OR transactions_recipientAccountId = :accountId ORDER BY transactions_date DESC;";
+            $sql = "SELECT transactions_id, transactions_date, transactions_description, transactions_amount, accounts.accounts_currency, transactions_senderAccountId, transactions_recipientAccountId, transactions_senderId FROM transactions 
+                    INNER JOIN accounts ON transactions.transactions_senderId = accounts.clients_id 
+                    WHERE transactions_senderAccountId = :accountId OR transactions_recipientAccountId = :accountId 
+                    ORDER BY transactions_date DESC;";
             $pdo = $client->connect();
 
             if ($stmt = $pdo->prepare($sql)) {
@@ -103,6 +119,7 @@ class Transaction extends DbHandler
                             );
 
                             $transaction->setDate($transactionInfo[$i]["transactions_date"]);
+                            $transaction->setCurrency($transactionInfo[$i]["accounts_currency"]);
 
                             array_push($transactionHistory, $transaction);
                         }
@@ -148,6 +165,7 @@ class Transaction extends DbHandler
         }
     }
 
+    // Check if transaction exists
     public function checkTransaction($transactionNo)
     {
         $sql = "SELECT transactions_id FROM transactions WHERE transactions_id = :transactionNo;";
@@ -272,6 +290,7 @@ class Transaction extends DbHandler
         }
     }
 
+    // Update sender account after transfer operation.
     private function updateSenderAccount()
     {
         $sql = "UPDATE accounts SET accounts_balance = accounts_balance - :amount WHERE accounts_id = :senderAccountNo";
@@ -296,6 +315,7 @@ class Transaction extends DbHandler
         }
     }
 
+    // Update recipient account after transfer operation.
     private function updateRecipientAccount()
     {
         $sql = "UPDATE accounts SET accounts_balance = accounts_balance + :amount WHERE accounts_id = :recipientAccountNo";

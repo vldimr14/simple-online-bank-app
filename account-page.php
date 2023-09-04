@@ -31,12 +31,6 @@ if (isset($_SESSION["loggedin"])) {
         <?php
         $accounts = $client->getAccounts();
 
-        // Test the accounts
-        // echo $accounts[0]->getAccountNo() . " ";
-        // echo " balance: " . $accounts[0]->getBalance() . " ";
-        // echo " client id: " . $accounts[0]->getClientId() . " ";
-        // echo " currency: " . $accounts[0]->getCurrency() . " ";
-
         // check if accounts exists.
         if ($accounts[0]->getAccountNo() !== NULL) {
         ?>
@@ -56,6 +50,9 @@ if (isset($_SESSION["loggedin"])) {
             <div class="transaction-history">
                 <h3>Transaction history (10 Latest)</h3>
 
+                <!-- search form -->
+                <?php include "search-form.php" ?>
+
                 <?php
 
                 if (isset($_SESSION["transactionHistory"])) {
@@ -69,6 +66,7 @@ if (isset($_SESSION["loggedin"])) {
                                 <th scope="col">Date</th>
                                 <th scope="col">Description</th>
                                 <th scope="col">Amount</th>
+                                <th scope="col">Currency</th>
                                 <th scope="col">Type</th>
                                 <th scope="col">Sender Account No.</th>
                                 <th scope="col">Recipient Account No.</th>
@@ -113,6 +111,7 @@ if (isset($_SESSION["loggedin"])) {
 
                                         ?>
 
+                                        <td><?php echo $transactionHistory[$i]->getCurrency(); ?></td>
                                         <td><?php echo $transactionHistory[$i]->getType(); ?></td>
                                         <td><?php echo $transactionHistory[$i]->getSenderAccountNo(); ?></td>
                                         <td><?php echo $transactionHistory[$i]->getRecipientAccountNo(); ?></td>

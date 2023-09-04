@@ -31,12 +31,6 @@ if (isset($_SESSION["loggedin"])) {
         <?php
         $accounts = $client->getAccounts();
 
-        // Test the accounts
-        // echo $accounts[0]->getAccountNo() . " ";
-        // echo " balance: " . $accounts[0]->getBalance() . " ";
-        // echo " client id: " . $accounts[0]->getClientId() . " ";
-        // echo " currency: " . $accounts[0]->getCurrency() . " ";
-
         // check if accounts exists.
         if ($accounts[0]->getAccountNo() !== NULL) {
         ?>
@@ -45,6 +39,9 @@ if (isset($_SESSION["loggedin"])) {
             <!-- Shows all transaction history -->
             <div class="transaction-history">
                 <h3 class="text-center"><?php echo htmlspecialchars($client->getFirstName()) . " " . htmlspecialchars($client->getLastName()) . "'s " ?>Transaction history</h3>
+
+                <!-- search form -->
+                <?php include "search-form.php" ?>
 
                 <?php
 
@@ -59,6 +56,7 @@ if (isset($_SESSION["loggedin"])) {
                                 <th scope="col">Date</th>
                                 <th scope="col">Description</th>
                                 <th scope="col">Amount</th>
+                                <th scope="col">Currency</th>
                                 <th scope="col">Type</th>
                                 <th scope="col">Sender Account No.</th>
                                 <th scope="col">Recipient Account No.</th>
@@ -103,6 +101,7 @@ if (isset($_SESSION["loggedin"])) {
 
                                         ?>
 
+                                        <td><?php echo $transactionHistory[$i]->getCurrency(); ?></td>
                                         <td><?php echo $transactionHistory[$i]->getType(); ?></td>
                                         <td><?php echo $transactionHistory[$i]->getSenderAccountNo(); ?></td>
                                         <td><?php echo $transactionHistory[$i]->getRecipientAccountNo(); ?></td>
@@ -121,32 +120,6 @@ if (isset($_SESSION["loggedin"])) {
         <?php
         } else {
         ?>
-            <!-- Page data in case if user is logged in and doesn't have an account. -->
-            <div class="newAccount">
-                <form action="main_includes/add-account-inc.php" method="post">
-                    <select class="form-select" name="currency">
-                        <option selected value="PLN">PLN</option>
-                        <option value="USD">USD</option>
-                        <option value="EUR">EUR</option>
-                    </select>
-
-                    <input type="submit" name="submit" value="Add new account" class="btn btn-outline-dark">
-                </form>
-            </div>
-
-            <!-- Error block -->
-            <div class="error-block text-center text-danger">
-                <?php
-
-                if (isset($_GET["error"])) {
-                    if ($_GET["error"] == "accountExists") {
-                        echo "Account with the chosen currency already exists. Please choose another currency.";
-                    }
-                }
-
-                ?>
-            </div>
-
         <?php
         }
         ?>
